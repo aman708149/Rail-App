@@ -340,21 +340,20 @@ export const ModifySearchModal = ({
                                     </TouchableOpacity>
 
                                     {/* Date Picker */}
-                                    {/* <View className="mt-4">
+                                    <View className="mt-4">
 
                                         <DateInput
                                             date={journeyDateObj}         // must be Date
                                             setDate={(d) => {
                                                 setJourneyDateObj(d);
-                                                setJourneyDate(d.toISOString().split("T")[0]);
+                                                setJourneyDate(d.toString().split("T")[0]);
                                             }}
                                             minDate={minDate}             // must be Date
                                         />
 
-                                    </View> */}
+                                    </View>
 
-                                    <View className="mt-4">
-                                        {/* Touchable to toggle calendar visibility */}
+                                    {/* <View className="mt-4">
                                         <TouchableOpacity
                                             onPress={openNativePicker}
                                             className="flex-row items-center border border-gray-300 dark:border-gray-600 rounded-lg p-3"
@@ -364,7 +363,7 @@ export const ModifySearchModal = ({
                                                 {journeyDateObj.toDateString()}
                                             </Text>
                                         </TouchableOpacity>
-                                    </View>
+                                    </View> */}
 
                                     {/* Search Button */}
                                     <Pressable

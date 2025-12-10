@@ -28,7 +28,7 @@ export default function AvailabilityCard({
     trainNumber,
 }: {
     enqClass: string;
-    avlDayList: any  
+    avlDayList: any
     onClick: (clickType?: string) => void;
     isActive: boolean;
     quota: keyof typeof Quota;
@@ -77,129 +77,139 @@ export default function AvailabilityCard({
     return (
         <TouchableOpacity
             onPress={() => onClick("refresh")}
+            className={`
+                mt-2 p-3 rounded-xl border-2
+                shadow-sm 
+                ${selectedCard ? "shadow-md" : "shadow"} 
+            `}
             style={{
-                backgroundColor: `${availabilityBg}20`,
-                borderWidth: 2,
-                borderColor: selectedCard ? availabilityBorder : `${availabilityBorder}40`,
-                borderRadius: 10,
-                padding: 10,
-                marginTop: 8,
+                backgroundColor: selectedCard
+                    ? `${availabilityBg}20`
+                    : `${availabilityBg}10`,
+                borderColor: selectedCard
+                    ? availabilityBorder
+                    : `${availabilityBorder}40`,
             }}
+            activeOpacity={0.8}
         >
             {/* LABELS */}
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <View
-                    style={{
-                        backgroundColor: "#10B981",
-                        paddingHorizontal: 6,
-                        paddingVertical: 2,
-                        borderRadius: 4,
-                        marginRight: 4,
-                    }}
-                >
-                    <Text style={{ color: "white", fontSize: 11 }}>{enqClass}</Text>
+            <View className="flex-row items-center gap-2">
+                <View className="bg-blue-500 px-2 py-1 rounded-md shadow">
+                    <Text className="text-white text-[11px] font-semibold tracking-wide">
+                        {enqClass}
+                    </Text>
                 </View>
 
-                <View
-                    style={{
-                        backgroundColor: "#2563EB",
-                        paddingHorizontal: 6,
-                        paddingVertical: 2,
-                        borderRadius: 4,
-                    }}
-                >
-                    <Text style={{ color: "white", fontSize: 11 }}>{quota}</Text>
+                <View className="bg-purple-500 px-2 py-1 rounded-md shadow">
+                    <Text className="text-primary text-[11px] font-semibold tracking-wide">
+                        {quota}
+                    </Text>
                 </View>
             </View>
 
             {/* FARE */}
-            {/* FARE */}
-            {avlDayList?.fare != null && avlDayList?.fare !== 0 && (
-                <Text
-                    style={{
-                        position: "absolute",
-                        right: 6,
-                        top: 4,
-                        fontSize: 11,
-                        color: "#9CA3AF",
-                    }}
-                >
-                    ₹ {formatNumberToSouthAsian(Number(avlDayList?.fare))}
-                </Text>
+            {avlDayList?.fare != null && avlDayList?.fare !== 0 && avlDayList?.fare !== 0 && (
+                <View className="absolute right-3 top-3 bg-white/90 px-2 py-1 rounded-md border border-gray-200">
+                    <Text className="text-green-600 font-bold text-[11px]">
+                        ₹{formatNumberToSouthAsian(Number(avlDayList?.fare))}
+                    </Text>
+                </View>
             )}
 
-
             {/* STATUS */}
-            <View style={{ marginTop: 6, alignItems: "center" }}>
+            <View className="mt-3 items-center py-1">
                 {avl?.availablityStatus ? (
-                    <Text style={{ fontSize: 12, fontWeight: "700", color: availabilityText }}>
-                        {formatAvailabilityStatus(avl?.availablityStatus)}
-                    </Text>
+                    <View className="flex-row items-center gap-2">
+                        <View
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: availabilityBorder }}
+                        />
+                        <Text
+                            className={`text-[14px] font-extrabold`}
+                            style={{ color: availabilityText }}
+                        >
+                            {formatAvailabilityStatus(avl?.availablityStatus)}
+                        </Text>
+                    </View>
                 ) : (
-                    <TouchableOpacity onPress={handlePressRefresh}>
-                        <Ionicons name="refresh" size={16} color="#ccc" />
+                    <TouchableOpacity
+                        onPress={handlePressRefresh}
+                        className="bg-gray-100 border border-gray-300 p-2 rounded-lg"
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="refresh" size={18} color="#6B7280" />
                     </TouchableOpacity>
                 )}
 
                 {avl?.updatedAt && timestamp && (
-                    <Text style={{ fontSize: 10, color: "#9CA3AF", marginTop: 2 }}>
-                        {timedifferenceInHHMM(avl?.updatedAt, new Date(timestamp), false)}
-                    </Text>
+                    <View className="flex-row items-center gap-1 mt-2 bg-gray-50 px-2 py-1 rounded-md">
+                        <Ionicons name="time-outline" size={10} color="#6B7280" />
+                        <Text className="text-[10px] text-gray-600 font-medium">
+                            {timedifferenceInHHMM(avl?.updatedAt, new Date(timestamp), false)}
+                        </Text>
+                    </View>
                 )}
             </View>
 
             {/* FOOTER BUTTONS */}
-            <View
-                style={{
-                    marginTop: 6,
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                }}
-            >
-                {/* More/Less */}
+            <View className="mt-3 flex-row justify-between items-center">
+                {/* More / Less */}
                 <TouchableOpacity
-                    onPress={() => onClick("arrow")}
-                    style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        backgroundColor: "#E5E7EB",
-                        paddingHorizontal: 6,
-                        paddingVertical: 4,
-                        borderRadius: 4,
+                    onPress={() => {
+                        if (isActive) {
+                            // Dropdown is open → close it, do NOT call API
+                            onClick("close");
+                        } else {
+                            // Dropdown is closed → call API & expand
+                            onClick("arrow");
+                        }
                     }}
+                    className="flex-row items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 bg-gray-100"
+                    activeOpacity={0.7}
                 >
                     <MaterialCommunityIcons
                         name={isActive ? "chevron-up" : "chevron-down"}
-                        size={16}
-                        color="#374151"
+                        size={18}
+                        color="#4B5563"
                     />
+                    <Text className="text-[11px] font-semibold text-gray-700">
+                        {isActive ? "Less" : "More"}
+                    </Text>
                 </TouchableOpacity>
 
-                {/* BOOK BTN */}
+
+
+                {/* BOOK BUTTON */}
                 {avl?.availablityStatus && (
                     <TouchableOpacity
                         disabled={bookLoader === quota}
                         onPress={() => onClick("book")}
-                        style={{
-                            backgroundColor: selectedCard ? "#16A34A" : "transparent",
-                            borderWidth: 1,
-                            borderColor: "#16A34A",
-                            paddingHorizontal: 12,
-                            paddingVertical: 4,
-                            borderRadius: 4,
-                        }}
+                        className={`
+                            min-w-[70px] px-4 py-2 rounded-lg flex-row items-center justify-center border
+                            ${selectedCard ? "bg-green-600 border-green-600" : "bg-green-50 border-green-300"}
+                        `}
+                        activeOpacity={0.8}
                     >
                         {bookLoader === quota ? (
-                            <View style={{ flexDirection: "row", gap: 4 }}>
-                                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "white" }} />
-                                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "white" }} />
-                                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: "white" }} />
+                            <View className="flex-row gap-1">
+                                <View className="w-2 h-2 bg-green-600 rounded-full" />
+                                <View className="w-2 h-2 bg-green-600 rounded-full" />
+                                <View className="w-2 h-2 bg-green-600 rounded-full" />
                             </View>
                         ) : (
-                            <Text style={{ color: selectedCard ? "white" : "#16A34A", fontSize: 12 }}>
-                                Book
-                            </Text>
+                            <View className="flex-row items-center gap-1">
+                                <Ionicons
+                                    name="bookmark-outline"
+                                    size={14}
+                                    color={selectedCard ? "white" : "#16A34A"}
+                                />
+                                <Text
+                                    className="font-bold text-[13px]"
+                                    style={{ color: selectedCard ? "white" : "#16A34A" }}
+                                >
+                                    Book
+                                </Text>
+                            </View>
                         )}
                     </TouchableOpacity>
                 )}
