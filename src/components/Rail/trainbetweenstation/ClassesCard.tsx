@@ -26,6 +26,7 @@ import { CheckButtonStatus } from "./getAvailabilityClass";
 import { showMessage } from "@/src/utils/showMessage";
 import { RailAvConfigType } from "./BookingConfigType";
 import Animated from "react-native-reanimated";
+import SelectedTrainModal from "./SelectedTrainModal";
 
 // ----------------- Props -----------------
 interface ClassesCardProps {
@@ -71,6 +72,7 @@ export default function ClassesCard({
     const initialFromRef = useRef(fromStnCode);
     const initialToRef = useRef(toStnCode);
     const [avlDayList, setAvlDayList] = React.useState<avlDayList[]>([])
+    const [showBookingModal, setShowBookingModal] = useState(false);
 
 
     // ---------------- QUOTA COLOR ----------------
@@ -85,15 +87,49 @@ export default function ClassesCard({
         }
     };
 
+    // const HandleBookClicked = async (avlDay: avlDayList, bkgConfig: RailAvConfigType) => {
+    //     const fare = Number(bkgConfig?.totalFare) + Number(bkgConfig?.wpServiceCharge) + Number(bkgConfig?.wpServiceTax)
+    //     const response = await RailFareCalculationService(
+    //         bkgConfig.enqClass,
+    //         fare
+    //     )
+    //     const selectedTrainData = {
+    //         _id: bkgConfig._id,
+    //         reqEnqParam: bkgConfig.reqEnqParam, // Unique key
+    //         baseFare: bkgConfig.baseFare,
+    //         cateringCharge: bkgConfig.cateringCharge,
+    //         distance: bkgConfig.distance,
+    //         dynamicFare: bkgConfig.dynamicFare,
+    //         enqClass: bkgConfig.enqClass,
+    //         from: bkgConfig.from,
+    //         to: bkgConfig.to,
+    //         initialFromStnCode: initialFromStnCode,
+    //         initialToStnCode: initialToStnCode,
+    //         quota: bkgConfig.quota,
+    //         trainName: bkgConfig.trainName,
+    //         trainNo: bkgConfig.trainNo,
+    //         wpServiceCharge: bkgConfig.wpServiceCharge,
+    //         wpServiceTax: bkgConfig.wpServiceTax,
+    //         journeyDate: avlDay.availablityDate,
+    //         originalJourneyDate: journeyDate,
+    //         availabilityStatus: avlDay?.availablityStatus,
+    //         fare: response?.data?.totalFare,
+    //         routeDetails: routeDetails,
+    //         agentfee: response?.data?.agentfee,
+    //         pgcharge: response?.data?.pgcharge,
+    //         totalFare: response?.data?.totalFare,
+    //     };
+
+    //     dispatch(setSelectedTrain(selectedTrainData));
+    // }
+
     const HandleBookClicked = async (avlDay: avlDayList, bkgConfig: RailAvConfigType) => {
         const fare = Number(bkgConfig?.totalFare) + Number(bkgConfig?.wpServiceCharge) + Number(bkgConfig?.wpServiceTax)
-        const response = await RailFareCalculationService(
-            bkgConfig.enqClass,
-            fare
-        )
+        const response = await RailFareCalculationService(bkgConfig.enqClass, fare);
+
         const selectedTrainData = {
             _id: bkgConfig._id,
-            reqEnqParam: bkgConfig.reqEnqParam, // Unique key
+            reqEnqParam: bkgConfig.reqEnqParam,
             baseFare: bkgConfig.baseFare,
             cateringCharge: bkgConfig.cateringCharge,
             distance: bkgConfig.distance,
@@ -119,7 +155,11 @@ export default function ClassesCard({
         };
 
         dispatch(setSelectedTrain(selectedTrainData));
-    }
+
+        // ✅ OPEN FULL BOOKING FLOW MODAL
+        setShowBookingModal(true);
+    };
+
 
     // ---------------- FETCH QUOTA (6-DAY) ----------------
     const getSixDayAvailability = async (
@@ -205,8 +245,11 @@ export default function ClassesCard({
                         wpServiceCharge: bkgConfig?.wpServiceCharge,
                         wpServiceTax: bkgConfig?.wpServiceTax,
                     }));
+                    console.log(" Total fare data is ", responseFare?.data?.totalFare)
+
                     setActiveQuota(quota);
                     setAvlDayList(response.data.avlDayList);
+                    console.log(" avalDayList data is ", response.data.avlDayList)
                     setBkgConfig(response?.data?.[0]); // Use bracket notation to access key '0'
                     if (clickType === 'book' && response?.data?.avlDayList?.length > 0) {
                         if (CheckButtonStatus(response?.data?.avlDayList[0]?.availablityStatus)) {
@@ -293,15 +336,17 @@ export default function ClassesCard({
     }, [fromStnCode, toStnCode]);
 
     // ---------------- BOOKING FUNCTION ----------------
-    const handleBook = async (day: avlDayList, config: any) => {
-        dispatch(setSelectedTrain({
-            ...config,
-            journeyDate: day.availablityDate,
-            routeDetails,
-            initialFromStnCode,
-            initialToStnCode
-        }));
-    };
+    // const handleBook = async (day: avlDayList, config: any) => {
+    //     dispatch(setSelectedTrain({
+    //         ...config,
+    //         journeyDate: day.availablityDate,
+    //         routeDetails,
+    //         initialFromStnCode,
+    //         initialToStnCode
+    //     }));
+    // };
+    // const avlData = availability.find(a => a.quota === quota);
+
 
     const hasTQorPT = quotasToRender.some(
         (quota) => quotaList.includes(quota) && ['TQ', 'PT'].includes(quota)
@@ -340,7 +385,7 @@ export default function ClassesCard({
                 {quotasToRender
                     .filter((q) => quotaList.includes(q))
                     .map((quota, index) => {
-                        const avlObj = availability.find((a) => a.quota === quota);
+                        const avlDayList = availability?.find((item: availabilityType) => item.quota === quota);
 
                         return (
                             <View
@@ -350,7 +395,7 @@ export default function ClassesCard({
                                     backgroundColor: quotaColor(quota),
                                     padding: 8,
                                     borderRadius: 12,
-                                    width: 140,
+                                    width: 150,
                                     shadowColor: "#000",
                                     shadowOffset: { width: 0, height: 1 },
                                     shadowOpacity: 0.2,
@@ -362,7 +407,7 @@ export default function ClassesCard({
                                 }}
                             >
                                 {/* QUOTA HEADER */}
-                                <View className="flex-row justify-between items-center mb-2">
+                                <View className="flex-row justify-between items-center mb-0">
                                     <View className="flex-row items-center gap-1.5">
                                         <View className="w-1.5 h-1.5 bg-gray-900/30 rounded-full"></View>
                                         <Text className="font-bold text-gray-900 text-sm tracking-wide">
@@ -383,7 +428,7 @@ export default function ClassesCard({
                                 <AvailabilityCard
                                     enqClass={enqClass}
                                     trainNumber={trainNumber}
-                                    avlDayList={avlObj?.availability}
+                                    avlDayList={avlDayList}
                                     isActive={
                                         activeTrain?.trainNumber === trainNumber &&
                                         activeTrain?.classQuota?.quota === quota &&
@@ -456,11 +501,17 @@ export default function ClassesCard({
                             reqEnqParam={bkgConfig?.reqEnqParam}
                             enqClass={enqClass}
                             hasTQorPTProps={hasTQorPT}
-                            onClick={(day) => handleBook(day, bkgConfig)}
+                            onClick={(day) => HandleBookClicked(day, bkgConfig)}
                             animationKey={0}
                         />
                     </Animated.View>
                 )}
+
+            <SelectedTrainModal
+                visible={showBookingModal}
+                onClose={() => setShowBookingModal(false)}
+            />
+
 
         </View>
     );

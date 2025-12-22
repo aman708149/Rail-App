@@ -74,11 +74,13 @@ export default function AvailabilityCard({
     const availabilityBorder = getAvailabilityClassCode(avl?.availablityStatus);
     const availabilityText = getAvailabilityTextClass(avl?.availablityStatus);
 
+    // console.log("available fare is ",avlDayList?.fare)
+
     return (
         <TouchableOpacity
             onPress={() => onClick("refresh")}
             className={`
-                mt-2 p-3 rounded-xl border-2
+                mt-0 p-1 rounded-xl border-2
                 shadow-sm 
                 ${selectedCard ? "shadow-md" : "shadow"} 
             `}
@@ -100,11 +102,11 @@ export default function AvailabilityCard({
                     </Text>
                 </View>
 
-                <View className="bg-purple-500 px-2 py-1 rounded-md shadow">
-                    <Text className="text-primary text-[11px] font-semibold tracking-wide">
+                {/* <View className="bg-purple-500 px-2 py-1 rounded-md shadow">
+                    <Text className="text-white text-[11px] font-semibold tracking-wide">
                         {quota}
                     </Text>
-                </View>
+                </View> */}
             </View>
 
             {/* FARE */}
@@ -164,17 +166,22 @@ export default function AvailabilityCard({
                             onClick("arrow");
                         }
                     }}
-                    className="flex-row items-center gap-1 px-3 py-2 rounded-lg border border-gray-300 bg-gray-100"
+                    className={`flex-row items-center gap-1 px-1 py-1 rounded-lg border 
+                    ${isActive
+                            ? "border-gray-300 bg-primary"   // Active (up)
+                            : "border-gray-100 bg-gray-100"   // Not active (down)
+                        }`}
                     activeOpacity={0.7}
                 >
                     <MaterialCommunityIcons
                         name={isActive ? "chevron-up" : "chevron-down"}
                         size={18}
-                        color="#4B5563"
+                        color={isActive ? "#FFFFFF" : "#4B5563"}
+                        
                     />
-                    <Text className="text-[11px] font-semibold text-gray-700">
+                    {/* <Text className="text-[11px] font-semibold text-gray-700">
                         {isActive ? "Less" : "More"}
-                    </Text>
+                    </Text> */}
                 </TouchableOpacity>
 
 
@@ -185,7 +192,7 @@ export default function AvailabilityCard({
                         disabled={bookLoader === quota}
                         onPress={() => onClick("book")}
                         className={`
-                            min-w-[70px] px-4 py-2 rounded-lg flex-row items-center justify-center border
+                            min-w-[70px] px-1 py-1 rounded-lg flex-row items-center justify-center border
                             ${selectedCard ? "bg-green-600 border-green-600" : "bg-green-50 border-green-300"}
                         `}
                         activeOpacity={0.8}
